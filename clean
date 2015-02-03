@@ -1,0 +1,3 @@
+#! /bin/sh
+
+rm -rfv pictures *.pyc *.h264 .DS_Store site.log

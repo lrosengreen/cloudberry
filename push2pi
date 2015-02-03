@@ -1,0 +1,3 @@
+#! /bin/sh
+
+scp -r ../cloudberry $1:/home/lars/
