@@ -21,6 +21,7 @@ from __future__ import division, print_function
 import datetime
 import io
 import os
+import shutil
 import sys
 import time
 
@@ -30,6 +31,7 @@ import picamera
 _current_directory = os.path.dirname(os.path.abspath(__file__))
 _preview_directory =  "/mnt/ramdisk/previews"
 _movie_directory = _current_directory + "/movies"
+_static_directory = _current_directory + "/static"
 _resolution = (1920, 1080)
 _preview_resolution = (960, 540)
 _framerate = 4 #frames per second
@@ -84,8 +86,9 @@ def run():
                     camera.stop_recording()
         else:
             print("\r{:78}".format(""), end="\r")
-            print("\rwaiting until {} (current time is {})".format(str(_start_time), str(now).split(".")[0]), end="")
+            print("\rsleeping until {} (current time is {})".format(str(_start_time), str(now).split(".")[0]), end="")
             sys.stdout.flush()
+            shutil.copy(os.path.join(_static_directory, "sleeping.jpg"), os.path.join(_preview_directory, "preview.jpg"))
             time.sleep(20)
 
 
