@@ -33,8 +33,8 @@ _movie_directory = _current_directory + "/movies"
 _resolution = (1920, 1080)
 _preview_resolution = (960, 540)
 _framerate = 4 #frames per second
-_start_time = datetime.time(18,35)
-_end_time = datetime.time(18,40)
+_start_time = datetime.time(6)
+_end_time = datetime.time(18)
 _minimum_free_space = 0.5 #free space in GB
 
 
