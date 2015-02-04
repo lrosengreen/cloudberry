@@ -2,4 +2,4 @@
 
 SERVER=${1:-poppy.local}
 echo "pushing to ${SERVER}..."
-rsync -av -delete -e ssh --exclude=.git* ~/cloudberry ${SERVER}:/home/lars/cloudberry
+rsync -av -delete -e ssh --exclude=.git* /Users/lars/cloudberry/ ${SERVER}:/home/lars/cloudberry
