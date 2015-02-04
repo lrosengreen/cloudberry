@@ -24,10 +24,7 @@ import os
 import sys
 import time
 
-import numpy
 import picamera
-
-from PIL import Image
 
 
 _current_directory = os.path.dirname(os.path.abspath(__file__))
@@ -36,8 +33,8 @@ _movie_directory = _current_directory + "/movies"
 _resolution = (1920, 1080)
 _preview_resolution = (960, 540)
 _framerate = 4 #frames per second
-_start_time = datetime.time(6)
-_end_time = datetime.time(18)
+_start_time = datetime.time(18,35)
+_end_time = datetime.time(18,40)
 _minimum_free_space = 0.5 #free space in GB
 
 
@@ -66,8 +63,9 @@ def run():
                 camera.annotate_background = True
                 try:
                     start_time = datetime.datetime.now()
-                    camera.start_recording(os.path.join(_movie_directory,
-                        "{}.h264".format(start_time.strftime("%Y%b%d_%H-%M-%S").lower())))
+                    fn = os.path.join(_movie_directory, "{}.h264".format(start_time.strftime("%Y%b%d_%H-%M-%S").lower()))
+                    print("\nrecording video to {}".format(fn))
+                    camera.start_recording(fn)
                     while free_space() > _minimum_free_space and now > _start_time and now < _end_time:
                         timestamp = datetime.datetime.now()
                         now = timestamp.time()
@@ -80,12 +78,13 @@ def run():
                         print("\rrunning:{} previews:{}".format(str(timestamp - start_time).split(".")[0], counter), end="")
                         sys.stdout.flush()
                         counter += 1
-                        camera.wait_recording(60)
+                        camera.wait_recording(15)
                 finally:
+                    print()
                     camera.stop_recording()
         else:
             print("\r{:78}".format(""), end="\r")
-            print("\rwaiting until: {} ({})".format(str(_start_time), str(now).split(".")[0]), end="")
+            print("\rwaiting until {} (current time is {})".format(str(_start_time), str(now).split(".")[0]), end="")
             sys.stdout.flush()
             time.sleep(20)
 
