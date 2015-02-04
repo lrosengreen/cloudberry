@@ -1,3 +1,5 @@
 #! /bin/sh
 
-scp -r ../cloudberry $1:/home/lars/
+SERVER=${1:-poppy.local}
+echo "pushing to ${SERVER}..."
+rsync -av -delete -e ssh --exclude=.git* ~/cloudberry ${SERVER}:/home/lars/cloudberry
