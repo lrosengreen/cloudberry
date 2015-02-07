@@ -49,6 +49,10 @@ def brightness(image):
     b = math.log(numpy.sum(m))
     return b
 
+def ensure_directory(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+
 def free_space():
     "Free disk space in gigabytes."
     s = os.statvfs('/')
@@ -65,10 +69,8 @@ def save_image(image, filename):
 
 
 def run():
-    if not os.path.exists(_preview_directory):
-        os.makedirs(_preview_directory)
-    if not os.path.exists(_picture_directory):
-        os.makedirs(_picture_directory)
+    ensure_directory(_preview_directory)
+    ensure_directory(_picture_directory)
     counter = 0
     with picamera.PiCamera() as camera:
         camera.resolution = (2592, 1944) #2592, 1944
@@ -93,7 +95,9 @@ def run():
                 light_level = brightness(image)
                 save_preview(image)
                 if light_level > _darkness_cutoff:
-                    fname = os.path.join(_picture_directory, "{:06d} {}.jpg".format(counter, timestamp.strftime("%Y%b%d %Hh%Mm%Ss")))
+                    save_location = os.path.join(_picture_directory, timestamp.strftime("%Y-%m-%d"))
+                    ensure_directory(save_location)
+                    fname = os.path.join(save_location, "{:06d}.jpg".format(counter))
                     save_image(image, fname)
                     counter = counter + 1
                 else:
