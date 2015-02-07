@@ -63,9 +63,12 @@ def save_preview(image):
     preview.save(os.path.join(_preview_directory, "preview.jpg"), quality=30)
 
 
-def save_image(image, filename):
-    image.save(os.path.join(_picture_directory, filename), quality=90)
+def save_image(image, filepath):
+    image.save(filepath, quality=90)
 
+
+def update_status(status):
+    print(status)
 
 
 def run():
@@ -85,7 +88,7 @@ def run():
             while free_space() > 0.5:
                 timestamp = datetime.datetime.now()
                 next_time = next_time + datetime.timedelta(seconds=_timelapse_interval)
-                camera.annotate_text = timestamp.strftime("%Y%b%d %H:%M:%S").lower()
+                camera.annotate_text = timestamp.strftime("%Y-%m-%d %H:%M:%S").lower()
                 # Create the in-memory stream
                 stream = io.BytesIO()
                 camera.capture(stream, format='jpeg')
@@ -94,14 +97,15 @@ def run():
                 image = Image.open(stream)
                 light_level = brightness(image)
                 save_preview(image)
+                status = ""
                 if light_level > _darkness_cutoff:
                     save_location = os.path.join(_picture_directory, timestamp.strftime("%Y-%m-%d"))
                     ensure_directory(save_location)
-                    fname = os.path.join(save_location, "{:06d}.jpg".format(counter))
-                    save_image(image, fname)
+                    fpath = os.path.join(save_location, "{:06d}.jpg".format(counter))
+                    save_image(image, fpath)
                     counter = counter + 1
                 else:
-                    print("*", end='')
+                    status += " [sleeping]"
                     next_time = next_time + datetime.timedelta(seconds=_darkness_sleeptime)
                 stream.close()
                 # figure out how long to wait before taking next picture
@@ -114,7 +118,8 @@ def run():
                     # time.sleep() should be 0.
                     wait_time = datetime.datetime.now() - next_time
                     wait_time = -1 * (wait_time.seconds + wait_time.microseconds * 1e-6)
-                print("time:{} images:{} wait:{:.2f}s brightness:{:.2f}".format(str(timestamp - start_time).split(".")[0], counter, wait_time, light_level))
+                status = "time:{} images:{} wait:{:.2f}s brightness:{:.2f}".format(str(timestamp - start_time).split(".")[0], counter, wait_time, light_level) + status
+                update_status(status)
                 time.sleep(0 if wait_time < 0 else wait_time)
         finally:
                 camera.stop_preview()
