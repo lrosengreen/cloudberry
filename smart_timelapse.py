@@ -19,6 +19,7 @@ from __future__ import division, print_function
 
 import datetime
 import io
+import math
 import os
 import shutil
 import sys
@@ -39,20 +40,26 @@ _image_height = 1944
 _preview_width = _image_width // 3
 _preview_heigh = _image_height // 3
 _timelapse_interval = 10 # how long to wait between taking pictures (in seconds)
+_darkness_cutoff = 18
+_darkness_sleeptime = 300 - _timelapse_interval # how long to wait when image is too dark (in seconds)
 
 
 def brightness(image):
     m = numpy.asarray(image)
-    return numpy.sum(m)
+    b = math.log(numpy.sum(m))
+    return b
 
 def free_space():
     "Free disk space in gigabytes."
     s = os.statvfs('/')
     return (s.f_bavail * s.f_frsize) / 1.0e9
 
-def save_image(image, filename):
+def save_preview(image):
     preview = image.resize((_preview_width,_preview_heigh))
-    preview.save(os.path.join(_preview_directory, "preview.jpg"))
+    preview.save(os.path.join(_preview_directory, "preview.jpg"), quality=30)
+
+
+def save_image(image, filename):
     image.save(os.path.join(_picture_directory, filename), quality=90)
 
 
@@ -76,7 +83,6 @@ def run():
             while free_space() > 0.5:
                 timestamp = datetime.datetime.now()
                 next_time = next_time + datetime.timedelta(seconds=_timelapse_interval)
-                fname = os.path.join(_picture_directory, "{:06d} {}.jpg".format(counter, timestamp.strftime("%Y%b%d %Hh%Mm%Ss")))
                 camera.annotate_text = timestamp.strftime("%Y%b%d %H:%M:%S").lower()
                 # Create the in-memory stream
                 stream = io.BytesIO()
@@ -84,8 +90,15 @@ def run():
                 # "Rewind" the stream to the beginning so we can read its content
                 stream.seek(0)
                 image = Image.open(stream)
-                save_image(image, fname)
                 light_level = brightness(image)
+                save_preview(image)
+                if light_level > _darkness_cutoff:
+                    fname = os.path.join(_picture_directory, "{:06d} {}.jpg".format(counter, timestamp.strftime("%Y%b%d %Hh%Mm%Ss")))
+                    save_image(image, fname)
+                    counter = counter + 1
+                else:
+                    print("*", end='')
+                    next_time = next_time + datetime.timedelta(seconds=_darkness_sleeptime)
                 stream.close()
                 # figure out how long to wait before taking next picture
                 if datetime.datetime.now() <= next_time:
@@ -97,9 +110,8 @@ def run():
                     # time.sleep() should be 0.
                     wait_time = datetime.datetime.now() - next_time
                     wait_time = -1 * (wait_time.seconds + wait_time.microseconds * 1e-6)
-                print("time:{} images:{} wait:{}s brightness:{}".format(str(timestamp - start_time).split(".")[0], counter, wait_time, light_level))
+                print("time:{} images:{} wait:{:.2f}s brightness:{:.2f}".format(str(timestamp - start_time).split(".")[0], counter, wait_time, light_level))
                 time.sleep(0 if wait_time < 0 else wait_time)
-                counter += 1
         finally:
                 camera.stop_preview()
                 camera.close()
