@@ -23,14 +23,14 @@ import timelapse_server
 __author__ = "Lars Rosengreen"
 __email__ = "lars.rosengreen@sjsu.edu"
 __license__ = "GPL"
-__version__ = "1.0e-99"
+__version__ = "0"
 
 
 if __name__ == "__main__":
     print("cloudberry timelapse camera v{}".format(__version__))
-    current_status = Array('c', 80)
-    camera = Process(target=timelapse_camera.run, args=(current_status,))
-    server = Process(target=timelapse_server.run, args=(current_status,))
+    camera_status = Array('c', 80)
+    camera = Process(target=timelapse_camera.run, args=(camera_status,))
+    server = Process(target=timelapse_server.run, args=(camera_status,))
     camera.start()
     server.start()
     camera.join()

@@ -44,10 +44,6 @@ class FreeSpace:
         free_space = (s.f_bavail * s.f_frsize) / 1.0e9 # in gigabytes
         return json.dumps(free_space)
 
-cherrypy.tree.mount(FreeSpace(),
-                    '/api/freespace',
-                    {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}})
-
 
 class Hostname:
     exposed = True
@@ -55,14 +51,23 @@ class Hostname:
         hostname = socket.gethostname()
         return json.dumps(hostname)
 
-cherrypy.tree.mount(Hostname(),
-                    '/api/hostname',
-                    {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}})
+
+class Status:
+    exposed = True
+
+    def __init__(self, camera_status):
+        self.camera_status = camera_status
+
+    def GET(self):
+        status = ""
+        if self.camera_status is not None:
+            status = self.camera_status.value
+        return json.dumps(status)
 
 
 
 
-def run(current_status=None, testing=False):
+def run(camera_status=None, testing=False):
     # Set up site-wide config first so we get a log if errors occur.
     cherrypy.config.update({'environment': 'production',
             'log.error_file': 'site.log',
@@ -78,6 +83,16 @@ def run(current_status=None, testing=False):
     if testing == True:
         cherrypy.engine.autoreload.subscribe()
         cherrypy.config.update({'log.screen': True})
+
+    cherrypy.tree.mount(FreeSpace(),
+            '/api/freespace',
+            {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}})
+    cherrypy.tree.mount(Hostname(),
+            '/api/hostname',
+            {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}})
+    cherrypy.tree.mount(Status(camera_status),
+            '/api/status',
+            {'/': {'request.dispatch': cherrypy.dispatch.MethodDispatcher()}})
 
     cherrypy.quickstart(Root(), '/', config=conf)
 

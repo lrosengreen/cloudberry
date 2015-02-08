@@ -37,8 +37,8 @@ _picture_directory = _current_directory + "/pictures"
 _start_time = datetime.datetime.now()
 _image_width = 2592
 _image_height = 1944
-_preview_width = _image_width // 3
-_preview_heigh = _image_height // 3
+_preview_width = _image_width // 2
+_preview_heigh = _image_height // 2
 _timelapse_interval = 60 # how long to wait between taking pictures (in seconds)
 _darkness_cutoff = 18
 _darkness_sleeptime = 600 - _timelapse_interval # how long to wait when image is too dark (in seconds)
@@ -49,14 +49,17 @@ def brightness(image):
     b = math.log(numpy.sum(m))
     return b
 
+
 def ensure_directory(path):
     if not os.path.exists(path):
         os.makedirs(path)
+
 
 def free_space():
     "Free disk space in gigabytes."
     s = os.statvfs('/')
     return (s.f_bavail * s.f_frsize) / 1.0e9
+
 
 def save_preview(image):
     preview = image.resize((_preview_width,_preview_heigh))
@@ -67,11 +70,13 @@ def save_image(image, filepath):
     image.save(filepath, quality=90)
 
 
-def update_status(status):
+def update_status(status, camera_status=None):
     print(status)
+    if camera_status is not None:
+        camera_status[0:len(status)] = status
 
 
-def run(current_status=None):
+def run(camera_status=None):
     ensure_directory(_preview_directory)
     ensure_directory(_picture_directory)
     counter = 0
@@ -119,7 +124,7 @@ def run(current_status=None):
                     wait_time = datetime.datetime.now() - next_time
                     wait_time = -1 * (wait_time.seconds + wait_time.microseconds * 1e-6)
                 status = "time:{} images:{} wait:{:.2f}s brightness:{:.2f}".format(str(timestamp - start_time).split(".")[0], counter, wait_time, light_level) + status
-                update_status(status)
+                update_status(status, camera_status)
                 time.sleep(0 if wait_time < 0 else wait_time)
         finally:
                 camera.stop_preview()

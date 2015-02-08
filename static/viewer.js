@@ -26,11 +26,27 @@ function getHostname() {
 }
 
 
+function getStatus() {
+    var url = "/api/status";
+    var client = new XMLHttpRequest();
+    client.open("GET", url, false);
+    client.setRequestHeader("Content-Type", "text/plain");
+    client.send();
+    var response = 0;
+    if (client.status == 200) {
+        response = JSON.parse(client.responseText);
+    }
+    return(response);
+}
+
+
+
 function refresh() {
   fn = "preview.jpg?" + new Date().getTime();
-  document.getElementById("piclink").href="/previews/" + fn;
-  document.getElementById("previewpic").src="/previews/" + fn;
+  document.getElementById("piclink").href = "/previews/" + fn;
+  document.getElementById("previewpic").src = "/previews/" + fn;
   document.getElementById("freespace").innerHTML = "free space: " + getFreeSpace()
+  document.getElementById("status").innerHTML = getStatus()
 }
 
 
