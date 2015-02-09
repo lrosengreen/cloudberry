@@ -28,7 +28,7 @@ __version__ = "0"
 
 if __name__ == "__main__":
     print("cloudberry timelapse camera v{}".format(__version__))
-    camera_status = Array('c', 80)
+    camera_status = Array('c', 200)
     camera = Process(target=timelapse_camera.run, args=(camera_status,))
     server = Process(target=timelapse_server.run, args=(camera_status,))
     camera.start()

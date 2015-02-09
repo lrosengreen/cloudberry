@@ -39,7 +39,7 @@ _image_width = 2592
 _image_height = 1944
 _preview_width = _image_width // 2
 _preview_heigh = _image_height // 2
-_timelapse_interval = 60 # how long to wait between taking pictures (in seconds)
+_timelapse_interval = 600 # how long to wait between taking pictures (in seconds)
 _darkness_cutoff = 18
 _darkness_sleeptime = 600 - _timelapse_interval # how long to wait when image is too dark (in seconds)
 
@@ -73,7 +73,8 @@ def save_image(image, filepath):
 def update_status(status, camera_status=None):
     print(status)
     if camera_status is not None:
-        camera_status[0:len(status)] = status
+        # always append a null at the end to avoid run-on strings
+        camera_status[0:len(status)+1] = status + '\x00'
 
 
 def run(camera_status=None):
@@ -110,7 +111,7 @@ def run(camera_status=None):
                     save_image(image, fpath)
                     counter = counter + 1
                 else:
-                    status += " [sleeping]"
+                    status += "[sleeping] "
                     next_time = next_time + datetime.timedelta(seconds=_darkness_sleeptime)
                 stream.close()
                 # figure out how long to wait before taking next picture
@@ -123,7 +124,7 @@ def run(camera_status=None):
                     # time.sleep() should be 0.
                     wait_time = datetime.datetime.now() - next_time
                     wait_time = -1 * (wait_time.seconds + wait_time.microseconds * 1e-6)
-                status = "run:{} images:{} wait:{:.2f}s brightness:{:.2f}".format(str(timestamp - start_time).split(".")[0], counter, wait_time, light_level) + status
+                status += "run:{} images:{} wait:{:.2f}s brightness:{:.2f}".format(str(timestamp - start_time).split(".")[0], counter, wait_time, light_level)
                 update_status(status, camera_status)
                 time.sleep(0 if wait_time < 0 else wait_time)
         finally:
