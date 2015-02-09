@@ -123,7 +123,7 @@ def run(camera_status=None):
                     # time.sleep() should be 0.
                     wait_time = datetime.datetime.now() - next_time
                     wait_time = -1 * (wait_time.seconds + wait_time.microseconds * 1e-6)
-                status = "time:{} images:{} wait:{:.2f}s brightness:{:.2f}".format(str(timestamp - start_time).split(".")[0], counter, wait_time, light_level) + status
+                status = "run:{} images:{} wait:{:.2f}s brightness:{:.2f}".format(str(timestamp - start_time).split(".")[0], counter, wait_time, light_level) + status
                 update_status(status, camera_status)
                 time.sleep(0 if wait_time < 0 else wait_time)
         finally:

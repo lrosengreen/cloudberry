@@ -45,13 +45,12 @@ function refresh() {
   fn = "preview.jpg?" + new Date().getTime();
   document.getElementById("piclink").href = "/previews/" + fn;
   document.getElementById("previewpic").src = "/previews/" + fn;
-  document.getElementById("freespace").innerHTML = "free space: " + getFreeSpace()
-  document.getElementById("status").innerHTML = getStatus()
+  document.getElementById("status").innerHTML = getStatus() + " free space:" + getFreeSpace();
 }
 
-
-document.getElementById("title").innerHTML = "viewfinder (" + getHostname() + ")"
-document.getElementById("heading").innerHTML = "viewfinder (" + getHostname() + ")"
+hostname = getHostname()
+document.getElementById("title").innerHTML = hostname + " cloudberry viewfinder";
+document.getElementById("hostname").innerHTML = getHostname();
 
 var refreshInterval = setInterval( "refresh()", 10 * 1000);
 
