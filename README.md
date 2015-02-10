@@ -29,7 +29,7 @@ Next, disable the led light on the camera.
 
 edit /boot/config.txt and add the line
 
-disable_camera_led=1
+    disable_camera_led=1
 
 
 motion.py
@@ -40,7 +40,9 @@ method (slow!).
 timelapse.py
 ------------
 Take high resolution pictures of a subject with a time delay between captures
-(currently 2 second minimum).
+(currently about 8 second minimum with a RPi Model A, likely much shorter with
+a RPi 2 model B). The software will 'sleep' the camera when it is too dark to
+take pictures and then wake it up again when conditions change.
 
 video.py
 --------
