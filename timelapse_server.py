@@ -26,13 +26,14 @@ import cherrypy
 from cherrypy.lib.static import serve_file
 
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
+_current_directory = os.path.dirname(os.path.abspath(__file__))
+_static_directory = _current_directory + "/static/"
 
 
 class Root:
     @cherrypy.expose
     def index(self):
-        return serve_file(os.path.join(current_dir,"static/viewer.html"))
+        return serve_file(_static_directory + "viewer.html"))
 
 
 # API
