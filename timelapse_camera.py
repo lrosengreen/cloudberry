@@ -128,7 +128,6 @@ def run(camera_status=None):
                 update_status(status, camera_status)
                 time.sleep(0 if wait_time < 0 else wait_time)
         finally:
-                camera.stop_preview()
                 camera.close()
 
 
