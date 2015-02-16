@@ -33,7 +33,7 @@ _static_directory = _current_directory + "/static/"
 class Root:
     @cherrypy.expose
     def index(self):
-        return serve_file(_static_directory + "viewer.html"))
+        return serve_file(_static_directory + "viewer.html")
 
 
 # API
